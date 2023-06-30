@@ -2,14 +2,16 @@ package create
 
 import (
 	"fmt"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
-	"github.com/go-nunu/nunu/tpl"
-	"github.com/spf13/cobra"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/go-nunu/nunu/internal/pkg/helper"
+	"github.com/go-nunu/nunu/tpl"
+	"github.com/spf13/cobra"
 )
 
 type Create struct {
@@ -20,6 +22,7 @@ type Create struct {
 	FileNameTitleLower string
 	FileNameFirstChar  string
 	IsFull             bool
+	TemplateFiles      map[string]string // templates of an external project
 }
 
 func NewCreate() *Create {
@@ -99,8 +102,8 @@ func runCreate(cmd *cobra.Command, args []string) {
 	default:
 		log.Fatalf("Invalid handler type: %s", c.CreateType)
 	}
-
 }
+
 func (c *Create) genFile() {
 	filePath := c.FilePath
 	if filePath == "" {
@@ -122,8 +125,8 @@ func (c *Create) genFile() {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
 	log.Printf("Created new %s: %s", c.CreateType, filePath+strings.ToLower(c.FileName)+".go")
-
 }
+
 func createFile(dirPath string, filename string) *os.File {
 	filePath := dirPath + filename
 	// 创建文件夹
@@ -142,4 +145,32 @@ func createFile(dirPath string, filename string) *os.File {
 	}
 
 	return file
+}
+
+func (c *Create) GetTargetDir() {
+	// check template
+	matches, err := filepath.Glob("./create/*.tpl")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	templates := make(map[string]string)
+
+	for _, file := range matches {
+		data, err := ioutil.ReadFile(file)
+		if err != nil {
+			log.Fatalf("failed reading data from file: %s", err)
+		}
+		// Get the file name from the path
+		_, filename := filepath.Split(file)
+		// Save the file content as string in the map
+		templates[filename] = string(data)
+	}
+
+	// Now templates map contains file names as keys and file content as values
+	for name, content := range templates {
+		fmt.Printf("\nFile: %s", name)
+		fmt.Printf("\nData: %s", content)
+	}
+
 }

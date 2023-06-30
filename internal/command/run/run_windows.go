@@ -5,10 +5,6 @@ package run
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/fsnotify/fsnotify"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"os/exec"
@@ -17,6 +13,12 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/fsnotify/fsnotify"
+	"github.com/go-nunu/nunu/internal/pkg/helper"
+	"github.com/go-nunu/nunu/internal/pkg/logs"
+	"github.com/spf13/cobra"
 )
 
 var quit = make(chan os.Signal, 1)
@@ -37,19 +39,19 @@ var RunCmd = &cobra.Command{
 		}
 		base, err := os.Getwd()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+			logs.Error(err)
 			return
 		}
 		if dir == "" {
 			cmdPath, err := helper.FindMain(base)
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+				logs.Error(err)
 				return
 			}
 			switch len(cmdPath) {
 			case 0:
-				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current directory")
+				logs.ErrorMsg("The cmd directory cannot be found in the current directory")
 				return
 			case 1:
 				for _, v := range cmdPath {

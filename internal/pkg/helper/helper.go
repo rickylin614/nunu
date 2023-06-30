@@ -2,11 +2,12 @@ package helper
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 func GetProjectName(dir string) string {
@@ -27,6 +28,7 @@ func GetProjectName(dir string) string {
 	}
 	return moduleName
 }
+
 func SplitArgs(cmd *cobra.Command, args []string) (cmdArgs, programArgs []string) {
 	dashAt := cmd.ArgsLenAtDash()
 	if dashAt >= 0 {
@@ -34,6 +36,8 @@ func SplitArgs(cmd *cobra.Command, args []string) (cmdArgs, programArgs []string
 	}
 	return args, []string{}
 }
+
+// 查詢所有的
 func FindMain(base string) (map[string]string, error) {
 	wd, err := os.Getwd()
 	if err != nil {

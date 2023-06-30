@@ -2,13 +2,15 @@ package wire
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/go-nunu/nunu/internal/pkg/helper"
+	"github.com/go-nunu/nunu/internal/pkg/logs"
+	"github.com/spf13/cobra"
 )
 
 var WireCmd = &cobra.Command{
@@ -24,7 +26,7 @@ var WireCmd = &cobra.Command{
 		}
 		base, err := os.Getwd()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+			logs.Error(err)
 			return
 		}
 		if dir == "" {
@@ -32,12 +34,12 @@ var WireCmd = &cobra.Command{
 			wirePath, err := findWire(base)
 
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+				logs.Error(err)
 				return
 			}
 			switch len(wirePath) {
 			case 0:
-				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current directory")
+				logs.ErrorMsg("The cmd directory cannot be found in the current directory")
 				return
 			case 1:
 				for _, v := range wirePath {
