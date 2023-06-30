@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
-	"github.com/go-nunu/nunu/internal/pkg/logs"
+	"github.com/rickylin614/nunu/internal/pkg/helper"
+	"github.com/rickylin614/nunu/internal/pkg/logs"
 	"github.com/spf13/cobra"
 )
 

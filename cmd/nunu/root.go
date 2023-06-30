@@ -2,12 +2,13 @@ package nunu
 
 import (
 	"fmt"
-	"github.com/go-nunu/nunu/internal/command/create"
-	"github.com/go-nunu/nunu/internal/command/project"
-	"github.com/go-nunu/nunu/internal/command/run"
-	"github.com/go-nunu/nunu/internal/command/upgrade"
-	"github.com/go-nunu/nunu/internal/command/wire"
-	"github.com/go-nunu/nunu/internal/version"
+
+	"github.com/rickylin614/nunu/internal/command/create"
+	"github.com/rickylin614/nunu/internal/command/project"
+	"github.com/rickylin614/nunu/internal/command/run"
+	"github.com/rickylin614/nunu/internal/command/upgrade"
+	"github.com/rickylin614/nunu/internal/command/wire"
+	"github.com/rickylin614/nunu/internal/version"
 	"github.com/spf13/cobra"
 )
 

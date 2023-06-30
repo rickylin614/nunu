@@ -1,4 +1,4 @@
-module github.com/go-nunu/nunu
+module github.com/rickylin614/nunu
 
 go 1.16
 

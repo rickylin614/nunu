@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-nunu/nunu/internal/pkg/helper"
+	"github.com/rickylin614/nunu/internal/pkg/helper"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
