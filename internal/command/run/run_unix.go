@@ -5,10 +5,6 @@ package run
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/fsnotify/fsnotify"
-	"github.com/rickylin614/nunu/internal/pkg/helper"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"os/exec"
@@ -16,6 +12,12 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/fsnotify/fsnotify"
+	"github.com/rickylin614/nunu/internal/pkg/helper"
+	"github.com/rickylin614/nunu/internal/pkg/logs"
+	"github.com/spf13/cobra"
 )
 
 var quit = make(chan os.Signal, 1)
