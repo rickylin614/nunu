@@ -12,6 +12,7 @@ import (
 	"github.com/rickylin614/nunu/internal/pkg/helper"
 	"github.com/rickylin614/nunu/tpl"
 	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type Create struct {
@@ -22,7 +23,8 @@ type Create struct {
 	FileNameTitleLower string
 	FileNameFirstChar  string
 	IsFull             bool
-	TemplateFiles      map[string]string // templates of an external project
+	TemplateFiles      map[string]*template.Template // templates of an external project
+	Config             Config
 }
 
 func NewCreate() *Create {
@@ -82,6 +84,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
+	c.InitConfig()
 
 	switch c.CreateType {
 	case "handler", "service", "repository", "model":
@@ -105,26 +108,25 @@ func runCreate(cmd *cobra.Command, args []string) {
 }
 
 func (c *Create) genFile() {
-	filePath := c.FilePath
-	if filePath == "" {
-		filePath = fmt.Sprintf("internal/%s/", c.CreateType)
-	}
-	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
-	if f == nil {
-		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists.")
-		return
-	}
-	defer f.Close()
+	for _, v := range c.GetPath() {
+		// create file
+		fileName := strings.ToLower(c.FileName)
+		f := createFile(v.Path, fileName+".go")
+		if f == nil {
+			log.Printf("warn: file %s%s %s", v.Path, fileName+".go", "already exists.")
+			return
+		}
+		defer f.Close()
 
-	t, err := template.ParseFS(tpl.CreateTemplateFS, fmt.Sprintf("create/%s.tpl", c.CreateType))
-	if err != nil {
-		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
+		// get template
+		t := c.GetTemplate(v.TempFile)
+
+		err := t.Execute(f, c)
+		if err != nil {
+			log.Fatalf("create %s error: %s", c.CreateType, err.Error())
+		}
+		log.Printf("Created new %s: %s", c.CreateType, v.Path+fileName+".go")
 	}
-	err = t.Execute(f, c)
-	if err != nil {
-		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
-	}
-	log.Printf("Created new %s: %s", c.CreateType, filePath+strings.ToLower(c.FileName)+".go")
 }
 
 func createFile(dirPath string, filename string) *os.File {
@@ -147,30 +149,101 @@ func createFile(dirPath string, filename string) *os.File {
 	return file
 }
 
-func (c *Create) GetTargetDir() {
+func (c *Create) GetTemplate(tempalteFileName string) *template.Template {
 	// check template
-	matches, err := filepath.Glob("./create/*.tpl")
+	matches, err := filepath.Glob("./template/nunu/*.tpl")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	templates := make(map[string]string)
+	if c.TemplateFiles == nil {
+		c.TemplateFiles = make(map[string]*template.Template, len(matches))
 
-	for _, file := range matches {
-		data, err := ioutil.ReadFile(file)
-		if err != nil {
-			log.Fatalf("failed reading data from file: %s", err)
+		for _, path := range matches {
+			dataTemp, err := template.ParseFiles(path)
+			// data, err := ioutil.ReadFile(path)
+			if err != nil {
+				log.Fatalf("failed reading data from file: %s", err)
+			}
+
+			// Get the file name from the path
+			_, filename := filepath.Split(path)
+			// Save the file content as string in the map
+			c.TemplateFiles[filename] = dataTemp
 		}
-		// Get the file name from the path
-		_, filename := filepath.Split(file)
-		// Save the file content as string in the map
-		templates[filename] = string(data)
 	}
 
-	// Now templates map contains file names as keys and file content as values
-	for name, content := range templates {
-		fmt.Printf("\nFile: %s", name)
-		fmt.Printf("\nData: %s", content)
+	if v, ok := c.TemplateFiles[tempalteFileName]; ok {
+		return v
+	} else {
+		t, err := template.ParseFS(tpl.CreateTemplateFS, fmt.Sprintf("create/%s.tpl", c.CreateType))
+		if err != nil {
+			log.Fatalf("create %s error: %s", c.CreateType, err.Error())
+		}
+		return t
 	}
 
+}
+
+// 確認目標路由
+func (c *Create) GetPath() []Path {
+	// 設定檔有Mode的流程
+	if c.CreateType == "model" && len(c.Config.TargetPath.Model) > 0 {
+		return c.Config.TargetPath.Model
+	}
+
+	// 沒有Model的流程
+	filePath := c.FilePath
+	TempFile := fmt.Sprintf("%s.tpl", c.CreateType)
+
+	// 判斷檔案路徑
+	if filePath == "" {
+		switch c.CreateType {
+		case "handler":
+			filePath = c.Config.TargetPath.Handler
+		case "service":
+			filePath = c.Config.TargetPath.Service
+		case "repository":
+			filePath = c.Config.TargetPath.Repository
+		}
+	}
+	if filePath == "" {
+		filePath = fmt.Sprintf("internal/%s/", c.CreateType)
+	}
+	return []Path{{Path: filePath, TempFile: TempFile}}
+}
+
+func (c *Create) InitConfig() {
+	file, err := os.Open("./template/nunu/target.yaml")
+	if err != nil {
+		fmt.Println(err) // TODO delete
+		return
+	}
+	defer file.Close()
+
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println(err) // TODO delete
+		return
+	}
+
+	c.Config = Config{}
+	if err := yaml.Unmarshal(content, &c.Config); err != nil {
+		fmt.Println(err) // TODO delete
+		return
+	}
+}
+
+type Path struct {
+	Path     string `yaml:"path"`
+	TempFile string `yaml:"temp_file"`
+}
+
+type Config struct {
+	TargetPath struct {
+		Handler    string `yaml:"handler"`
+		Service    string `yaml:"service"`
+		Repository string `yaml:"repository"`
+		Model      []Path `yaml:"model"`
+	} `yaml:"target_path"`
 }
