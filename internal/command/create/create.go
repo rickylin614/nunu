@@ -22,6 +22,7 @@ type Create struct {
 	FileName           string
 	FileNameTitleLower string
 	FileNameFirstChar  string
+	FileNameSnakeCase  string
 	IsFull             bool
 	TemplateFiles      map[string]*template.Template // templates of an external project
 	Config             Config
@@ -83,7 +84,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FilePath, c.FileName = filepath.Split(args[0])
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
-	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
+	c.FileNameSnakeCase = helper.ToSnakeCase(c.FileName)
 	c.InitConfig()
 
 	switch c.CreateType {
