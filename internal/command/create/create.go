@@ -216,20 +216,17 @@ func (c *Create) GetPath() []Path {
 func (c *Create) InitConfig() {
 	file, err := os.Open("./template/nunu/target.yaml")
 	if err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 	defer file.Close()
 
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 
 	c.Config = Config{}
 	if err := yaml.Unmarshal(content, &c.Config); err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 }
