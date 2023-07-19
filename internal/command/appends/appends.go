@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -117,6 +118,10 @@ func (a *Append) AppendTemplate() {
 
 		// 將修改後的結果寫回檔案
 		err = ioutil.WriteFile(file.Path, []byte(result), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = exec.Command("go", "fmt", file.Path).Run()
 		if err != nil {
 			log.Fatal(err)
 		}
