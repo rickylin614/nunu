@@ -80,6 +80,11 @@ func (a *Append) AppendTemplate() {
 		// 結果初始化為原始數據
 		result := string(data)
 
+		if len(matches) == 0 {
+			log.Printf("not found any match: %s", file.Path)
+			continue
+		}
+
 		// 從最後一個匹配開始，反向遍曆所有的匹配
 		for i := len(matches) - 1; i >= 0; i-- {
 			// 找到匹配的開始和結束
@@ -115,6 +120,7 @@ func (a *Append) AppendTemplate() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("Append template to: %s", file.Path)
 	}
 }
 
@@ -128,6 +134,7 @@ func (a *Append) InitConfig() {
 
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
+		log.Fatalf("read ./template/nunu/append.yaml error: %v", err)
 		return
 	}
 
