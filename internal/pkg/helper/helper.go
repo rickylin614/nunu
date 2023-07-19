@@ -86,3 +86,9 @@ func ToSnakeCase(str string) string {
 	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
 	return strings.ToLower(snake)
 }
+
+func ReplaceEscapeString(str string) string {
+	output := strings.ReplaceAll(str, "\\t", "\t")
+	output = strings.ReplaceAll(output, "\\n", "\n")
+	return output
+}

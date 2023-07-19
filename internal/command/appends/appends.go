@@ -17,7 +17,6 @@ import (
 
 type Append struct {
 	ProjectName        string
-	CreateType         string
 	FilePath           string
 	FileName           string
 	FileNameTitleLower string
@@ -52,8 +51,6 @@ var AppendCmd = &cobra.Command{
 
 func runProvider(cmd *cobra.Command, args []string) {
 	a := NewAppend()
-	a.ProjectName = helper.GetProjectName(".")
-	a.CreateType = cmd.Use
 	a.FilePath, a.FileName = filepath.Split(args[0])
 	a.FileName = strings.ReplaceAll(strings.ToUpper(string(a.FileName[0]))+a.FileName[1:], ".go", "")
 	a.FileNameTitleLower = strings.ToLower(string(a.FileName[0])) + a.FileName[1:]
@@ -70,8 +67,12 @@ func (a *Append) AppendTemplate() {
 			log.Fatalf("\033[33;1mcmd run failed %s\u001B[0m", err)
 		}
 
+		// 復原正則
+		file.Regex = helper.ReplaceEscapeString(file.Regex)
+		file.Template = helper.ReplaceEscapeString(file.Template)
+
 		// 創建一個多行匹配的正則表達式
-		re := regexp.MustCompile(file.Regex)
+		re := regexp.MustCompile("(?s)" + file.Regex)
 
 		// 找到所有的匹配
 		matches := re.FindAllStringIndex(string(data), -1)
@@ -120,6 +121,7 @@ func (a *Append) AppendTemplate() {
 func (a *Append) InitConfig() {
 	file, err := os.Open("./template/nunu/append.yaml")
 	if err != nil {
+		log.Fatalf("read ./template/nunu/append.yaml error: %v", err)
 		return
 	}
 	defer file.Close()
@@ -131,6 +133,7 @@ func (a *Append) InitConfig() {
 
 	a.Config = Config{}
 	if err := yaml.Unmarshal(content, &a.Config); err != nil {
+		log.Fatalf("Unmarshal append.yaml error :%v", err)
 		return
 	}
 }
