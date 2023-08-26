@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -106,6 +107,11 @@ func runCreate(cmd *cobra.Command, args []string) {
 	default:
 		log.Fatalf("Invalid handler type: %s", c.CreateType)
 	}
+	// format document
+	err := exec.Command("go", "fmt", "./...").Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (c *Create) genFile() {
@@ -124,7 +130,7 @@ func (c *Create) genFile() {
 
 		err := t.Execute(f, c)
 		if err != nil {
-			log.Fatalf("create %s error: %s", c.CreateType, err.Error())
+			log.Printf("create %s error: %s", c.CreateType, err.Error())
 		}
 		log.Printf("Created new %s: %s", c.CreateType, v.Path+fileName+".go")
 	}
@@ -135,7 +141,8 @@ func createFile(dirPath string, filename string) *os.File {
 	// 创建文件夹
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
-		log.Fatalf("Failed to create dir %s: %v", dirPath, err)
+		log.Printf("Failed to create dir %s: %v", dirPath, err)
+		return nil
 	}
 	stat, _ := os.Stat(filePath)
 	if stat != nil {
@@ -144,7 +151,8 @@ func createFile(dirPath string, filename string) *os.File {
 	// 创建文件
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatalf("Failed to create file %s: %v", filePath, err)
+		log.Printf("Failed to create file %s: %v", filePath, err)
+		return nil
 	}
 
 	return file
@@ -217,20 +225,17 @@ func (c *Create) GetPath() []Path {
 func (c *Create) InitConfig() {
 	file, err := os.Open("./template/nunu/target.yaml")
 	if err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 	defer file.Close()
 
 	content, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 
 	c.Config = Config{}
 	if err := yaml.Unmarshal(content, &c.Config); err != nil {
-		fmt.Println(err) // TODO delete
 		return
 	}
 }

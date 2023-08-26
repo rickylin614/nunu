@@ -3,6 +3,7 @@ package nunu
 import (
 	"fmt"
 
+	"github.com/rickylin614/nunu/internal/command/appends"
 	"github.com/rickylin614/nunu/internal/command/create"
 	"github.com/rickylin614/nunu/internal/command/project"
 	"github.com/rickylin614/nunu/internal/command/run"
@@ -25,6 +26,7 @@ func init() {
 	rootCmd.AddCommand(wire.WireCmd)
 	rootCmd.AddCommand(run.RunCmd)
 	rootCmd.AddCommand(upgrade.UpgradeCmd)
+	rootCmd.AddCommand(appends.AppendCmd)
 	create.CreateCmd.AddCommand(create.CreateHandlerCmd)
 	create.CreateCmd.AddCommand(create.CreateServiceCmd)
 	create.CreateCmd.AddCommand(create.CreateRepositoryCmd)
