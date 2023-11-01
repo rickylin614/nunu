@@ -87,6 +87,12 @@ func ToSnakeCase(str string) string {
 	return strings.ToLower(snake)
 }
 
+func ToKebabCase(str string) string {
+	kebab := matchFirstCap.ReplaceAllString(str, "${1}-${2}")
+	kebab = matchAllCap.ReplaceAllString(kebab, "${1}-${2}")
+	return strings.ToLower(kebab)
+}
+
 func ReplaceEscapeString(str string) string {
 	output := strings.ReplaceAll(str, "\\t", "\t")
 	output = strings.ReplaceAll(output, "\\n", "\n")

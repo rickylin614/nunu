@@ -2,7 +2,7 @@ package create
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/rickylin614/nunu/internal/pkg/helper"
-	"github.com/rickylin614/nunu/tpl"
 	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v3"
 )
@@ -24,6 +23,7 @@ type Create struct {
 	FileNameTitleLower string
 	FileNameFirstChar  string
 	FileNameSnakeCase  string
+	FileNameKebabCase  string
 	IsFull             bool
 	TemplateFiles      map[string]*template.Template // templates of an external project
 	Config             Config
@@ -86,6 +86,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameSnakeCase = helper.ToSnakeCase(c.FileName)
+	c.FileNameKebabCase = helper.ToKebabCase(c.FileName)
 	c.InitConfig()
 
 	switch c.CreateType {
@@ -127,6 +128,9 @@ func (c *Create) genFile() {
 
 		// get template
 		t := c.GetTemplate(v.TempFile)
+		if t == nil {
+			continue
+		}
 
 		err := t.Execute(f, c)
 		if err != nil {
@@ -185,11 +189,11 @@ func (c *Create) GetTemplate(tempalteFileName string) *template.Template {
 	if v, ok := c.TemplateFiles[tempalteFileName]; ok {
 		return v
 	} else {
-		t, err := template.ParseFS(tpl.CreateTemplateFS, fmt.Sprintf("create/%s.tpl", c.CreateType))
-		if err != nil {
-			log.Fatalf("create %s error: %s", c.CreateType, err.Error())
-		}
-		return t
+		// t, err := template.ParseFS(tpl.CreateTemplateFS, fmt.Sprintf("create/%s.tpl", c.CreateType))
+		// if err != nil {
+		// 	log.Fatalf("create %s error: %s", c.CreateType, err.Error())
+		// }
+		return nil
 	}
 
 }
@@ -229,7 +233,7 @@ func (c *Create) InitConfig() {
 	}
 	defer file.Close()
 
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		return
 	}
