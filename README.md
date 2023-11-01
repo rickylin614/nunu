@@ -5,6 +5,10 @@
 
 - 快速產生CRUD template的工具
 
+## install
+
+`go install github.com/rickylin614/nunu@v1.0.4`
+
 ## tree exmpale
 ```
 └─template
