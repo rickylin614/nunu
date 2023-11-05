@@ -24,6 +24,7 @@ type Create struct {
 	FileNameFirstChar  string
 	FileNameSnakeCase  string
 	FileNameKebabCase  string
+	FileNameLower      string
 	IsFull             bool
 	TemplateFiles      map[string]*template.Template // templates of an external project
 	Config             Config
@@ -87,6 +88,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameSnakeCase = helper.ToSnakeCase(c.FileName)
 	c.FileNameKebabCase = helper.ToKebabCase(c.FileName)
+	c.FileNameLower = strings.ToLower(c.FileName)
 	c.InitConfig()
 
 	switch c.CreateType {
