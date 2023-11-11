@@ -71,11 +71,11 @@ files:
 - nunu create handler `{model}`
   - auto gen handler.tpl to target directory
 - nunu create service `{model}`
-  - auto gen handler.tpl to target directory
+  - auto gen service.tpl to target directory
 - nunu create reposotory `{model}`
-  - auto gen handler.tpl to target directory
+  - auto gen reposotory.tpl to target directory
 - nunu create model `{model}`
-  - auto gen handler.tpl to target directory
+  - auto gen model.tpl to target directory
 - nunu create all `{model}`
   - auto gen handler & service & reposotory & model
 
