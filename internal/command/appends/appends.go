@@ -2,7 +2,7 @@ package appends
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -63,7 +63,7 @@ func runProvider(cmd *cobra.Command, args []string) {
 func (a *Append) AppendTemplate() {
 	for _, file := range a.Config.Files {
 		// 讀取檔案內容
-		data, err := ioutil.ReadFile(file.Path)
+		data, err := os.ReadFile(file.Path)
 		if err != nil {
 			log.Fatalf("\033[33;1mcmd run failed %s\u001B[0m", err)
 		}
@@ -117,7 +117,7 @@ func (a *Append) AppendTemplate() {
 		}
 
 		// 將修改後的結果寫回檔案
-		err = ioutil.WriteFile(file.Path, []byte(result), 0644)
+		err = os.WriteFile(file.Path, []byte(result), 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -137,7 +137,7 @@ func (a *Append) InitConfig() {
 	}
 	defer file.Close()
 
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatalf("read ./template/nunu/append.yaml error: %v", err)
 		return

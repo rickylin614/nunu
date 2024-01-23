@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -109,11 +108,6 @@ func runCreate(cmd *cobra.Command, args []string) {
 		c.genFile()
 	default:
 		log.Fatalf("Invalid handler type: %s", c.CreateType)
-	}
-	// format document
-	err := exec.Command("go", "fmt", "./...").Run()
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
